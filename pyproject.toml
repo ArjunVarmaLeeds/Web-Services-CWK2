@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "search-engine"
+version = "0.1.0"
+description = "A simple search engine tool"
+authors = [{name = "Arjun Varma"}]
+dependencies = [
+    "requests",
+    "beautifulsoup4",
+    "pytest"
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
