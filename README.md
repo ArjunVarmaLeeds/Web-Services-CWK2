@@ -1,3 +1,4 @@
+![CI](https://github.com/ArjunVarmaLeeds/Web-Services-CWK2/actions/workflows/ci.yml/badge.svg)
 # 🚀 **Search Engine Tool (COMP3011 Coursework 2)**
 
 ## 📌 Overview
