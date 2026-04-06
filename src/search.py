@@ -24,7 +24,27 @@ class Search:
         return self.index[word]
 
     def find(self, query: List[str]) -> List[str]:
-        pass
+        """
+        Find pages containing ALL words (AND query).
+        """
+        if not query:
+            return []
+
+        words = self.process_query(" ".join(query))
+
+        # collect sets of pages
+        page_sets = []
+
+        for word in words:
+            if word not in self.index:
+                return []  # if any word missing → no result
+
+            page_sets.append(set(self.index[word].keys()))
+
+        # intersection of all sets
+        results = set.intersection(*page_sets)
+
+        return list(results)
 
     def find_with_ranking(self, query: List[str]) -> List[tuple]:
         pass
