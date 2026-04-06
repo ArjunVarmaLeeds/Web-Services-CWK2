@@ -208,6 +208,23 @@ pytest
   * Multi-word intersection logic
   * TF-IDF ranking
 
+**Current test coverage:**
+```
+================================================== tests coverage ===================================================
+_________________________________ coverage: platform darwin, python 3.12.10-final-0 _________________________________
+
+Name             Stmts   Miss  Cover
+------------------------------------
+src/crawler.py      57      8    86%
+src/indexer.py      30      0   100%
+src/main.py         91     91     0%
+src/search.py       43      2    95%
+------------------------------------
+TOTAL              221    101    54%
+================================================ 32 passed in 1.10s =================================================
+
+```
+
 ### Testing Strategy
 
 * ✅ Unit tests for each module

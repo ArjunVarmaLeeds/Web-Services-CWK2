@@ -1,5 +1,3 @@
-"""Tests for crawler module."""
-
 import pytest
 from unittest.mock import patch, Mock
 from requests import RequestException
@@ -17,7 +15,6 @@ def load_html(filename: str) -> str:
 
     with open(file_path, "r", encoding="utf-8") as f:
         return f.read()
-
 
 # -------------------------
 # Test fetch_page (success)
@@ -38,7 +35,6 @@ def test_fetch_page_success(mock_get):
     assert soup is not None
     assert isinstance(soup, bs)
 
-
 # -------------------------
 # Test fetch_page (failure)
 # -------------------------
@@ -50,7 +46,6 @@ def test_fetch_page_failure(mock_get):
     soup = crawler.fetch_page("http://fake-url")
 
     assert soup is None
-
 
 # -------------------------
 # Test extract_quotes
@@ -71,7 +66,6 @@ def test_extract_quotes():
     assert isinstance(quotes[0]["text"], str)
     assert isinstance(quotes[0]["author"], str)
 
-
 # -------------------------
 # Test get_next_page (exists)
 # -------------------------
@@ -86,7 +80,6 @@ def test_get_next_page_exists():
     assert next_url is not None
     assert next_url.endswith("/page/2/")
 
-
 # -------------------------
 # Test get_next_page (none)
 # -------------------------
@@ -99,7 +92,6 @@ def test_get_next_page_none():
     next_url = crawler.get_next_page(soup)
 
     assert next_url is None
-
 
 # -------------------------
 # Test crawl (integration)
@@ -131,3 +123,29 @@ def test_crawl(mock_fetch, mock_sleep):
 
     assert "text" in data[0]["quotes"][0]
     assert "author" in data[0]["quotes"][0]
+
+def test_extract_quotes_empty_html():
+    crawler = Crawler()
+    soup = bs("<html></html>", "html.parser")
+
+    quotes = crawler.extract_quotes(soup)
+
+    assert quotes == []
+
+def test_get_next_page_invalid_structure():
+    crawler = Crawler()
+    soup = bs("<html></html>", "html.parser")
+
+    assert crawler.get_next_page(soup) is None
+
+@patch("src.crawler.requests.get")
+def test_fetch_called_with_correct_url(mock_get):
+    from unittest.mock import Mock
+    mock_response = Mock()
+    mock_response.text = "<html><body>Test</body></html>"
+    mock_get.return_value = mock_response
+    
+    crawler = Crawler()
+    crawler.fetch_page("http://test.com")
+
+    mock_get.assert_called_once_with("http://test.com", timeout=10)
