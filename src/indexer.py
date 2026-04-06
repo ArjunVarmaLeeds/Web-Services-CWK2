@@ -45,4 +45,19 @@ class Indexer:
         return self.index
     
     def save_index(self, filename):
-        pass
+        print("\n" + "="*60)
+        print("Saving index to file")
+        print("="*60)
+        with open(filename, "w") as f:
+            json_index = {
+                word: {
+                    url: {
+                        "frequency": data["frequency"],
+                        "positions": data["positions"]
+                    }
+                    for url, data in urls.items()
+                }
+                for word, urls in self.index.items()
+            }
+            json.dump(json_index, f, indent=2)
+        print(f"✓ Index saved to {filename}")
