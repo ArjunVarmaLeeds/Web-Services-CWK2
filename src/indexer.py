@@ -36,7 +36,13 @@ class Indexer:
             self.index[word][url]["positions"].append(position)
 
     def build_index(self, crawler_data):
-        pass
+        for page in crawler_data:
+            url = page["url"]
+
+            for quote in page["quotes"]:
+                self.add_document(url, quote["text"])
+
+        return self.index
     
     def save_index(self, filename):
         pass
