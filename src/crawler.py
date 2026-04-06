@@ -51,5 +51,45 @@ class Crawler:
         return None
 
     def crawl(self) -> List[Dict]:
-        pass
+        """
+        Crawl all pages and return collected data.
+        Each entry contains:
+        {
+            "url": page_url,
+            "quotes": [list of quotes]
+        }
+        """
+        url = f"{self.base_url}/page/1/"
+        all_data = []
+
+        while url:
+            if url in self.visited_urls:
+                break
+
+            print(f"[INFO] Crawling: {url}")
+            soup = self.fetch_page(url)
+
+            if soup is None:
+                break
+
+            # Extract quotes
+            quotes = self.extract_quotes(soup)
+
+            all_data.append({
+                "url": url,
+                "quotes": quotes
+            })
+
+            self.visited_urls.add(url)
+
+            # Find next page
+            url = self.get_next_page(soup)
+
+            # Politeness delay (MANDATORY for coursework)
+            if url:
+                print("[INFO] Sleeping for 6 seconds (politeness policy)...")
+                time.sleep(6)
+
+        print(f"[INFO] Crawling complete. Pages visited: {len(all_data)}")
+        return all_data
 
