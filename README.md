@@ -1,61 +1,123 @@
-# Search Engine Tool (COMP3011 Coursework 2)
+# 🚀 **Search Engine Tool (COMP3011 Coursework 2)**
 
-## 📌 Project Overview and Purpose
+## 📌 Overview
 
-This project implements a simple search engine tool for the website:
-https://quotes.toscrape.com/
+This project implements a **mini search engine pipeline** over the website:
+👉 [https://quotes.toscrape.com/](https://quotes.toscrape.com/)
 
-The system demonstrates core search engine concepts including: - Web
-crawling - Inverted indexing - Query processing and retrieval
+It demonstrates core information retrieval concepts including:
 
-The tool crawls web pages, extracts textual data (quotes), builds an
-inverted index storing word statistics (frequency and positions), and
-allows users to search for words or phrases efficiently using the TF-IDF page ranking algorithm via a
-command-line interface.
+* Web crawling
+* Inverted indexing
+* Query processing
+* Relevance ranking (TF-IDF)
 
-------------------------------------------------------------------------
+The system crawls web pages, extracts textual data (quotes), builds an efficient **inverted index**, and supports fast keyword-based search via a command-line interface.
 
-## ⚙️ Installation / Setup Instructions
+---
 
-### 1. Clone the repository
+## 🧠 Key Features
 
-``` bash
+* 🔍 **Inverted Index** with frequency and positional data
+* ⚡ **Efficient Lookup** using hash-based structures (Python dictionaries)
+* 🔎 **Multi-word AND Queries**
+* 📊 **TF-IDF Ranking** for improved search relevance
+* 🧹 **Regex-based Tokenization** (handles punctuation correctly)
+* 🧪 **Comprehensive Test Suite** with mocking and real HTML parsing
+* 💾 Persistent storage using JSON
+
+---
+
+## 🏗️ Architecture Overview
+
+The system follows a **modular pipeline design**:
+
+```text
+           +-------------+
+           |  Crawler    |
+           +-------------+
+                  |
+                  v
+           +-------------+
+           |  Indexer    |
+           +-------------+
+                  |
+                  v
+           +-------------+
+           |   Search    |
+           +-------------+
+                  |
+                  v
+           +-------------+
+           |     CLI     |
+           +-------------+
+```
+
+### Components
+
+#### 1. Crawler (`crawler.py`)
+
+* Traverses all pages using pagination
+* Extracts quotes and authors
+* Implements politeness delay between requests
+* Handles network errors gracefully
+
+#### 2. Indexer (`indexer.py`)
+
+* Builds an **inverted index**:
+
+  ```
+  word → {document → {frequency, positions}}
+  ```
+* Uses regex tokenization for normalization
+* Stores positional data for extensibility (e.g., phrase search)
+
+#### 3. Search (`search.py`)
+
+* Supports:
+
+  * Word lookup (`print`)
+  * Multi-word AND queries (`find`)
+* Implements **TF-IDF ranking**:
+
+  * Rewards rare, informative terms
+  * Improves relevance over simple frequency scoring
+
+#### 4. CLI Interface (`main.py`)
+
+* Provides user interaction
+* Implements required commands:
+
+  * `build`, `load`, `print`, `find`
+
+---
+
+## ⚙️ Installation & Setup
+
+### 1. Clone Repository
+
+```bash
 git clone https://github.com/ArjunVarmaLeeds/Web-Services-CWK2.git
 cd Web-Services-CWK2
 ```
 
-### 2. Install dependencies
+### 2. Install Dependencies
 
-``` bash
+```bash
 pip install -r requirements.txt
 ```
 
 Or manually:
 
-``` bash
+```bash
 pip install requests beautifulsoup4 pytest
 ```
 
-### 3. Project Structure
+---
 
-    src/
-      main.py
-      crawler.py
-      indexer.py
-      search.py
+## 🚀 Usage
 
-    tests/
-      test_crawler.py
-      test_indexer.py
-      test_search.py
-
-    data/
-
-------------------------------------------------------------------------
-
-## 🚀 Usage Instructions
-
-Run the program from the project root:
+Run the application:
 
 ```bash
 python src/main.py
@@ -65,52 +127,27 @@ python src/main.py
 
 ## 💻 Command Examples
 
-Below are examples demonstrating all four required commands.
-
----
-
-### 🔨 1. Build Index
-
-Crawls the website and builds the inverted index.
+### 🔨 Build Index
 
 ```bash
 > build
 ```
 
-**Example Output:**
-
-```
-[BUILD] Starting crawl and indexing...
-[INFO] Crawling: https://quotes.toscrape.com/page/1/
-[INFO] Crawling complete. Pages visited: 10
-============================================================
-Saving index to file
-============================================================
-✓ Index saved to data/index.json
-[BUILD] Completed successfully.
-```
+Crawls all pages and builds the inverted index.
 
 ---
 
-### 📂 2. Load Index
-
-Loads a previously saved index from disk.
+### 📂 Load Index
 
 ```bash
 > load
 ```
 
-**Example Output:**
-
-```
-[LOAD] Index loaded successfully.
-```
+Loads previously saved index from `data/index.json`.
 
 ---
 
-### 🔍 3. Print Word
-
-Displays index details for a specific word.
+### 🔍 Print Word
 
 ```bash
 > print life
@@ -123,16 +160,11 @@ Displays index details for a specific word.
 - https://quotes.toscrape.com/page/1/
   frequency: 2
   positions: [3, 10]
-- https://quotes.toscrape.com/page/2/
-  frequency: 1
-  positions: [5]
 ```
 
 ---
 
-### 🔎 4. Find Words
-
-Searches for pages containing ALL query terms, uses TF-IDF ranking.
+### 🔎 Find (Ranked Search)
 
 ```bash
 > find good friends
@@ -142,81 +174,153 @@ Searches for pages containing ALL query terms, uses TF-IDF ranking.
 
 ```
 [FIND] Pages containing ['good', 'friends']:
-- https://quotes.toscrape.com/page/1/
+- https://quotes.toscrape.com/page/1/ (score=3.42)
+- https://quotes.toscrape.com/page/2/ (score=1.87)
 ```
 
 ---
 
-### ⚠️ Edge Case Example
+## 🧪 Testing
+
+Run all tests:
 
 ```bash
-> find unknownword
-```
-
-**Output:**
-
-```
-[INFO] No results found for ['unknownword']
-```
-
----
-
-## 🧪 Testing Instructions
-
-Run all tests using:
-
-``` bash
 pytest
 ```
 
-### What is tested:
+### Test Coverage Includes:
 
--   Crawler (HTML parsing, pagination, error handling)
--   Indexer (tokenization, indexing logic, file saving)
--   Search (query processing, retrieval, ranking)
+* Crawler:
 
-Tests use: - Mocking (for network calls) - Saved HTML files (realistic
-parsing) - Edge case validation
+  * HTML parsing
+  * Pagination handling
+  * Error handling (mocked requests)
 
-------------------------------------------------------------------------
+* Indexer:
+
+  * Tokenization
+  * Index structure correctness
+  * Frequency and positional tracking
+
+* Search:
+
+  * Query processing
+  * Multi-word intersection logic
+  * TF-IDF ranking
+
+### Testing Strategy
+
+* ✅ Unit tests for each module
+* ✅ Mocking external dependencies (network calls)
+* ✅ Real HTML files for realistic parsing
+* ✅ Edge case handling
+
+---
 
 ## 📦 Dependencies
 
--   requests → HTTP requests
--   beautifulsoup4 → HTML parsing
--   pytest → testing framework
--   re (built-in) → tokenization
+| Library          | Purpose           |
+| ---------------- | ----------------- |
+| `requests`       | HTTP requests     |
+| `beautifulsoup4` | HTML parsing      |
+| `pytest`         | Testing framework |
+| `re` (built-in)  | Tokenization      |
 
-Install all dependencies with:
+---
 
-``` bash
-pip install requests beautifulsoup4 pytest
-```
+## 🧠 Design Rationale
 
-------------------------------------------------------------------------
+### Why Inverted Index?
 
-## 🧠 Key Features
+* Enables **O(1) average lookup** per word
+* Avoids scanning documents at query time
+* Scales efficiently for large datasets
 
--   Inverted index with frequency and positional data
--   Case-insensitive search
--   Regex-based tokenization (handles punctuation correctly)
--   Multi-word AND queries
--   Optional ranking (term frequency based)
+---
 
-------------------------------------------------------------------------
+### Why TF-IDF Ranking?
 
-## 📌 Notes
+* Simple frequency-based ranking treats all words equally
+* TF-IDF improves relevance by:
 
--   The crawler respects a politeness delay between requests
--   The index is stored as a JSON file in the `data/` directory
--   Ensure internet connection is available when running `build`
+  * Boosting rare terms (high IDF)
+  * Penalising common terms
 
-------------------------------------------------------------------------
+This aligns with real-world search engine behaviour.
+
+---
+
+### Why Regex Tokenization?
+
+* Handles punctuation consistently
+* Ensures:
+
+  ```
+  "life." == "life"
+  ```
+* Prevents mismatches between indexing and querying
+
+---
+
+### Why Modular Design?
+
+* Separation of concerns:
+
+  * Crawling
+  * Indexing
+  * Searching
+* Improves:
+
+  * Maintainability
+  * Testability
+  * Extensibility
+
+---
+
+## 📈 Complexity Overview
+
+| Operation          | Complexity     |
+| ------------------ | -------------- |
+| Crawling           | O(n) pages     |
+| Indexing           | O(total words) |
+| Search (AND query) | O(k × d)       |
+| Ranking (TF-IDF)   | O(results)     |
+
+Where:
+
+* `k` = number of query terms
+* `d` = documents per term
+
+---
+
+## 📌 Limitations & Future Work
+
+* No phrase search (can be added using positions)
+* No stemming or lemmatization
+* Ranking can be improved using:
+
+  * TF-IDF normalization
+  * cosine similarity
+
+---
 
 ## 🎯 Summary
 
-This project demonstrates a simplified but realistic search engine
-pipeline: Crawling → Indexing → Searching
+This project implements a **complete search engine pipeline**:
 
-It highlights core concepts used in real-world search systems such as
-Google, including efficient retrieval using inverted indices.
+> Crawling → Indexing → Retrieval → Ranking
+
+It demonstrates key principles used in real-world systems such as:
+
+* inverted indexing
+* query processing
+* relevance ranking
+
+---
+
+## 👤 Author
+
+Arjun Varma
+University of Leeds – Computer Science
+
+---
