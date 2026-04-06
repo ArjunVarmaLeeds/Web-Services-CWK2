@@ -47,4 +47,30 @@ class Search:
         return list(results)
 
     def find_with_ranking(self, query: List[str]) -> List[tuple]:
-        pass
+        """
+        TF-IDF based ranking
+        """
+        if not query:
+            return []
+
+        words = self.process_query(" ".join(query))
+        N = len({url for word in self.index for url in self.index[word]})
+
+        scores = {}
+
+        for word in words:
+            if word not in self.index:
+                return []
+
+            df = len(self.index[word])  # document frequency
+            idf = math.log((N + 1) / (df + 1)) + 1  # smoothed IDF
+
+            for url, data in self.index[word].items():
+                tf = data["frequency"]
+
+                if url not in scores:
+                    scores[url] = 0
+
+                scores[url] += tf * idf
+
+        return sorted(scores.items(), key=lambda x: x[1], reverse=True)
