@@ -42,7 +42,13 @@ class Crawler:
         return quotes
 
     def get_next_page(self, soup: bs) -> str:
-        pass
+        """
+        Get next page URL if exists.
+        """
+        next_button = soup.select_one(".next a")
+        if next_button:
+            return self.base_url + next_button["href"]
+        return None
 
     def crawl(self) -> List[Dict]:
         pass
