@@ -23,7 +23,23 @@ class Crawler:
             return None
 
     def extract_quotes(self, soup: bs) -> List[Dict]:
-        pass
+        """
+        Extract all quotes from a page.
+        """
+        quotes = []
+        quote_elements = soup.select(".quote .text")
+        author_elements = soup.select(".quote .author")
+
+        for q, a in zip(quote_elements, author_elements):
+            text = q.get_text(strip=True)
+            author = a.get_text(strip=True)
+
+            quotes.append({
+                "text": text,
+                "author": author
+            })
+
+        return quotes
 
     def get_next_page(self, soup: bs) -> str:
         pass
