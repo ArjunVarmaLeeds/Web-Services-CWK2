@@ -342,3 +342,8 @@ Arjun Varma
 University of Leeds – Computer Science
 
 ---
+
+### References
+- Manning, C. D., Raghavan, P., & Schütze, H. (2008). *Introduction to Information Retrieval*
+
+---
