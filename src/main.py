@@ -1,5 +1,14 @@
+"""
+Command-Line Interface for the Quotes Search Engine
+
+This module provides a CLI tool for building an inverted index from web-crawled
+quotes data and performing search queries. It integrates the Crawler, Indexer,
+and Search components into a user-friendly command-line application.
+"""
+
 import json
 import os
+from typing import Dict, List, Optional, Any
 
 from crawler import Crawler
 from indexer import Indexer
@@ -7,10 +16,18 @@ from search import Search
 
 INDEX_FILE = "data/index.json"
 
+
 # -------------------------
 # BUILD COMMAND
 # -------------------------
-def build():
+def build() -> None:
+    """
+    Execute the build command: crawl website and create inverted index.
+
+    This function orchestrates the crawling of quotes.toscrape.com,
+    builds an inverted index from the collected data, and saves it
+    to a JSON file. It ensures the data directory exists.
+    """
     print("\n[BUILD] Starting crawl and indexing...")
 
     crawler = Crawler()
@@ -30,7 +47,17 @@ def build():
 # -------------------------
 # LOAD COMMAND
 # -------------------------
-def load():
+def load() -> Optional[Dict[str, Dict[str, Dict[str, Any]]]]:
+    """
+    Execute the load command: load inverted index from file.
+
+    This function attempts to load the inverted index from the JSON file.
+    If the file doesn't exist, it prints an error and returns None.
+
+    Returns:
+        Optional[Dict[str, Dict[str, Dict[str, Any]]]]: The loaded index,
+            or None if the file doesn't exist.
+    """
     if not os.path.exists(INDEX_FILE):
         print("[ERROR] No index file found. Run 'build' first.")
         return None
@@ -45,7 +72,17 @@ def load():
 # -------------------------
 # PRINT COMMAND
 # -------------------------
-def print_word(search: Search, word: str):
+def print_word(search: Search, word: str) -> None:
+    """
+    Execute the print command: display index entry for a word.
+
+    This function looks up a word in the index and prints its frequency
+    and position data across all documents.
+
+    Args:
+        search (Search): The Search instance with the loaded index.
+        word (str): The word to look up.
+    """
     result = search.print_word(word)
 
     if not result:
@@ -63,7 +100,17 @@ def print_word(search: Search, word: str):
 # -------------------------
 # FIND COMMAND (Uses TF-IDF page ranking)
 # -------------------------
-def find_words(search: Search, words):
+def find_words(search: Search, words: List[str]) -> None:
+    """
+    Execute the find command: search for words with TF-IDF ranking.
+
+    This function performs a ranked search for the given words and
+    displays the results sorted by relevance score.
+
+    Args:
+        search (Search): The Search instance with the loaded index.
+        words (List[str]): The list of words to search for.
+    """
     results = search.find_with_ranking(words)
 
     if not results:
@@ -81,7 +128,18 @@ def find_words(search: Search, words):
 # -------------------------
 # OPTIONAL: RANKED FIND
 # -------------------------
-def find_ranked(search: Search, words):
+def find_ranked(search: Search, words: List[str]) -> None:
+    """
+    Alternative find command with different output format.
+
+    This function is similar to find_words but uses a different
+    output format. It may be used for debugging or alternative
+    display preferences.
+
+    Args:
+        search (Search): The Search instance with the loaded index.
+        words (List[str]): The list of words to search for.
+    """
     results = search.find_with_ranking(words)
 
     if not results:
@@ -97,9 +155,16 @@ def find_ranked(search: Search, words):
 # -------------------------
 # CLI LOOP
 # -------------------------
-def main():
-    index = None
-    search = None
+def main() -> None:
+    """
+    Main CLI loop for the search engine tool.
+
+    This function provides an interactive command-line interface
+    that allows users to build/load the index and perform searches.
+    Available commands: build, load, print <word>, find <words>, exit.
+    """
+    index: Optional[Dict[str, Dict[str, Dict[str, Any]]]] = None
+    search: Optional[Search] = None
 
     print("========================================")
     print(" Simple Search Engine Tool ")

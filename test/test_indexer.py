@@ -20,16 +20,17 @@ def test_tokenize_basic():
 # -------------------------
 # Test add_document (single word)
 # -------------------------
-def test_add_document_single_word():
+@pytest.mark.parametrize("text, expected", [
+    ("hello", {"hello": 1}),
+    ("good good", {"good": 2}),
+    ("a b a", {"a": 2, "b": 1}),
+])
+def test_add_document_parametrized(text, expected):
     indexer = Indexer()
+    indexer.add_document("page1", text)
 
-    indexer.add_document("page1", "hello")
-
-    assert "hello" in indexer.index
-    assert "page1" in indexer.index["hello"]
-    assert indexer.index["hello"]["page1"]["frequency"] == 1
-    assert indexer.index["hello"]["page1"]["positions"] == [0]
-
+    for word, freq in expected.items():
+        assert indexer.index[word]["page1"]["frequency"] == freq
 
 # -------------------------
 # Test add_document (multiple words + positions)
@@ -44,7 +45,6 @@ def test_add_document_multiple_words():
 
     assert indexer.index["friends"]["page1"]["frequency"] == 1
     assert indexer.index["friends"]["page1"]["positions"] == [2]
-
 
 # -------------------------
 # Test multiple documents
@@ -61,7 +61,6 @@ def test_add_multiple_documents():
 
     assert indexer.index["good"]["page1"]["frequency"] == 1
     assert indexer.index["good"]["page2"]["frequency"] == 1
-
 
 # -------------------------
 # Test build_index
@@ -89,7 +88,6 @@ def test_build_index():
     assert "page1" in index["good"]
     assert "page2" in index["good"]
 
-
 # -------------------------
 # Test empty input
 # -------------------------
@@ -99,7 +97,6 @@ def test_build_index_empty():
     index = indexer.build_index([])
 
     assert index == {}
-
 
 # -------------------------
 # Test save_index
@@ -125,7 +122,6 @@ def test_save_index(tmp_path):
     assert "page1" in data["hello"]
     assert data["hello"]["page1"]["frequency"] == 1
 
-
 # -------------------------
 # Test case insensitivity
 # -------------------------
@@ -137,7 +133,6 @@ def test_case_insensitivity():
     assert "good" in indexer.index
     assert indexer.index["good"]["page1"]["frequency"] == 3
 
-
 # -------------------------
 # Test positions correctness
 # -------------------------
@@ -147,3 +142,14 @@ def test_positions_correct():
     indexer.add_document("page1", "a b a")
 
     assert indexer.index["a"]["page1"]["positions"] == [0, 2]
+
+def test_save_index_empty(tmp_path):
+    indexer = Indexer()
+
+    file_path = tmp_path / "empty.json"
+    indexer.save_index(file_path)
+
+    with open(file_path) as f:
+        data = json.load(f)
+
+    assert data == {}
