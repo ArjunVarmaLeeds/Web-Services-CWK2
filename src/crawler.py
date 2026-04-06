@@ -8,7 +8,7 @@ class Crawler:
     def __init__(self, base_url: str = "https://quotes.toscrape.com"):
         self.base_url = base_url
         self.visited_urls = set()
-        self.sleep_time = 6
+        self.sleep_time = 3
 
     def fetch_page(self, url: str) -> bs:
         """
@@ -89,7 +89,7 @@ class Crawler:
             # Politeness delay (MANDATORY for coursework)
             if url:
                 print(f"[INFO] Sleeping for {self.sleep_time} seconds (politeness policy)...")
-                time.sleep({self.sleep_time})
+                time.sleep(self.sleep_time)
 
         print(f"[INFO] Crawling complete. Pages visited: {len(all_data)}")
         return all_data

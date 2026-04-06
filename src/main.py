@@ -1,128 +1,150 @@
+import json
+import os
+
 from crawler import Crawler
 from indexer import Indexer
-import json
+from search import Search
 
+INDEX_FILE = "data/index.json"
 
-def run_build():
-    """
-    Runs crawler + indexer and saves index to file.
-    """
-    print("[INFO] Starting crawl...")
+# -------------------------
+# BUILD COMMAND
+# -------------------------
+def build():
+    print("\n[BUILD] Starting crawl and indexing...")
 
     crawler = Crawler()
-    crawler_data = crawler.crawl()
-
-    print("[INFO] Building index...")
+    data = crawler.crawl()
 
     indexer = Indexer()
-    index = indexer.build_index(crawler_data)
+    index = indexer.build_index(data)
 
-    # Save index
-    with open("data/index.json", "w", encoding="utf-8") as f:
-        json.dump(index, f, indent=2)
+    # ensure data directory exists
+    os.makedirs("data", exist_ok=True)
 
-    print("[INFO] Index saved to data/index.json")
+    indexer.save_index(INDEX_FILE)
 
-    return index
+    print("[BUILD] Completed successfully.\n")
 
 
-def run_load():
-    """
-    Loads index from file.
-    """
-    try:
-        with open("data/index.json", "r", encoding="utf-8") as f:
-            index = json.load(f)
-
-        print("[INFO] Index loaded successfully")
-        return index
-
-    except FileNotFoundError:
+# -------------------------
+# LOAD COMMAND
+# -------------------------
+def load():
+    if not os.path.exists(INDEX_FILE):
         print("[ERROR] No index file found. Run 'build' first.")
         return None
 
+    with open(INDEX_FILE, "r", encoding="utf-8") as f:
+        index = json.load(f)
 
-def print_word(index, word):
-    """
-    Print index entry for a word.
-    """
-    word = word.lower()
+    print("[LOAD] Index loaded successfully.\n")
+    return index
 
-    if word not in index:
-        print(f"[INFO] Word '{word}' not found in index")
+
+# -------------------------
+# PRINT COMMAND
+# -------------------------
+def print_word(search: Search, word: str):
+    result = search.print_word(word)
+
+    if not result:
+        print(f"[INFO] Word '{word}' not found.\n")
         return
 
-    print(f"\n[INFO] Results for '{word}':")
-
-    for url, stats in index[word].items():
+    print(f"\n[PRINT] Results for '{word}':")
+    for url, stats in result.items():
         print(f"- {url}")
         print(f"  frequency: {stats['frequency']}")
         print(f"  positions: {stats['positions']}")
+    print()
 
 
-def find_words(index, words):
-    """
-    Find pages containing ALL words.
-    """
-    words = [w.lower() for w in words]
+# -------------------------
+# FIND COMMAND (Uses TF-IDF page ranking)
+# -------------------------
+def find_words(search: Search, words):
+    results = search.find_with_ranking(words)
 
-    result_sets = []
+    if not results:
+        print(f"[INFO] No results found for {words}\n")
+        return
 
-    for word in words:
-        if word not in index:
-            print(f"[INFO] Word '{word}' not found")
-            return []
+    print(f"\n[FIND] Pages containing {words} (ranked):")
 
-        result_sets.append(set(index[word].keys()))
+    for url, score in results:
+        print(f"- {url} (score={score:.2f})")
 
-    # intersection of all sets
-    results = set.intersection(*result_sets)
-
-    print(f"\n[INFO] Pages containing {words}:")
-
-    for r in results:
-        print(f"- {r}")
-
-    return list(results)
+    print()
 
 
+# -------------------------
+# OPTIONAL: RANKED FIND
+# -------------------------
+def find_ranked(search: Search, words):
+    results = search.find_with_ranking(words)
+
+    if not results:
+        print(f"[INFO] No results found for {words}\n")
+        return
+
+    print(f"\n[FIND - RANKED] Pages containing {words}:")
+    for url, score in results:
+        print(f"- {url} (score={score})")
+    print()
+
+
+# -------------------------
+# CLI LOOP
+# -------------------------
 def main():
     index = None
+    search = None
 
-    print("Simple Search Engine CLI")
-    print("Commands: build | load | print <word> | find <words> | exit")
+    print("========================================")
+    print(" Simple Search Engine Tool ")
+    print("========================================")
+    print("Commands:")
+    print("  build")
+    print("  load")
+    print("  print <word>")
+    print("  find <word1> <word2> ...")
+    print("  exit")
+    print("========================================")
 
     while True:
         command = input("> ").strip()
 
         if command == "build":
-            index = run_build()
+            build()
 
         elif command == "load":
-            index = run_load()
+            index = load()
+            if index is not None:
+                search = Search(index)
 
         elif command.startswith("print "):
-            if index is None:
-                print("[ERROR] Load or build index first")
+            if search is None:
+                print("[ERROR] Load or build index first.\n")
                 continue
 
             word = command.split(" ", 1)[1]
-            print_word(index, word)
+            print_word(search, word)
 
         elif command.startswith("find "):
-            if index is None:
-                print("[ERROR] Load or build index first")
+            if search is None:
+                print("[ERROR] Load or build index first.\n")
                 continue
 
             words = command.split()[1:]
-            find_words(index, words)
+            find_words(search, words)
 
         elif command == "exit":
             print("Exiting...")
             break
 
         else:
-            print("[ERROR] Unknown command")
+            print("[ERROR] Unknown command.\n")
 
 
 if __name__ == "__main__":
