@@ -93,3 +93,13 @@ class Crawler:
         print(f"[INFO] Crawling complete. Pages visited: {len(all_data)}")
         return all_data
 
+
+if __name__ == "__main__":
+    crawler = Crawler()
+    data = crawler.crawl()
+
+    # Simple debug print
+    for page in data:
+        print(f"\nURL: {page['url']}")
+        for quote in page["quotes"]:
+            print(f" - {quote}")
