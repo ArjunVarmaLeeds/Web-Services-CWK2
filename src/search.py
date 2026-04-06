@@ -4,16 +4,24 @@ import math
 
 class Search:
     def __init__(self, index: Dict):
-        pass
+        self.index = index
 
     def normalize(self, word: str) -> str:
-        pass
+        return word.lower()
     
     def process_query(self, text: str):
-        pass
+        return re.findall(r"\b\w+\b", text.lower())
 
     def print_word(self, word: str) -> Dict:
-        pass
+        """
+        Return inverted index entry for a word.
+        """
+        word = self.normalize(word)
+
+        if word not in self.index:
+            return {}
+
+        return self.index[word]
 
     def find(self, query: List[str]) -> List[str]:
         pass
