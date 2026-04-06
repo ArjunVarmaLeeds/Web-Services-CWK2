@@ -209,22 +209,6 @@ pytest
   * Multi-word intersection logic
   * TF-IDF ranking
 
-**Current test coverage:**
-```
-================================================== tests coverage ===================================================
-_________________________________ coverage: platform darwin, python 3.12.10-final-0 _________________________________
-
-Name             Stmts   Miss  Cover
-------------------------------------
-src/crawler.py      57      8    86%
-src/indexer.py      30      0   100%
-src/main.py         91     91     0%
-src/search.py       43      2    95%
-------------------------------------
-TOTAL              221    101    54%
-================================================ 32 passed in 1.10s =================================================
-
-```
 
 ### Testing Strategy
 
@@ -319,6 +303,20 @@ Where:
 
   * TF-IDF normalization
   * cosine similarity
+
+---
+
+### Relation to Modern Search Systems
+
+This system reflects the core architecture of modern search engines such as Google and Elasticsearch, which use inverted indices for efficient retrieval and ranking algorithms (e.g., TF-IDF, BM25) for relevance.
+
+While modern systems operate at distributed scale and incorporate additional signals such as link analysis (PageRank) and semantic embeddings, this project focuses on the foundational retrieval pipeline used in all search engines.
+
+---
+
+### Design Trade-offs
+
+A simple dictionary-based inverted index was chosen for efficiency and simplicity. While this provides fast lookup, it does not scale to distributed systems or large datasets, where more advanced storage solutions (e.g., inverted files on disk or distributed indices) would be required.
 
 ---
 
