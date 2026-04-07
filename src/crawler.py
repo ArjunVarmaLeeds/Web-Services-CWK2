@@ -36,7 +36,7 @@ class Crawler:
         """
         self.base_url = base_url
         self.visited_urls: set[str] = set()
-        self.sleep_time = 3
+        self.sleep_time = 6
 
     def fetch_page(self, url: str) -> Optional[bs]:
         """
