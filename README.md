@@ -211,6 +211,3 @@ This project demonstrates:
 The system provides a complete pipeline from data collection to search, making it suitable for small-scale search applications.
 
 ---
-
-## 📅 Generated
-2026-05-04
