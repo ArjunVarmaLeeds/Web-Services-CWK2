@@ -1,16 +1,18 @@
 # Web Services Coursework 2
 
 ## 🚀 Overview
-This project implements an optimized search system with both a **basic inverted index lookup** and an enhanced **TF-IDF ranking mechanism**. The system is designed with performance and scalability in mind, supported by benchmarking and algorithmic analysis.
+This project implements a simple search engine for quotes scraped from quotes.toscrape.com. The system crawls web pages, builds an inverted index from the collected quotes, and provides search functionality with TF-IDF ranking for relevance.
 
 ---
 
 ## 🧠 Features
-- Basic keyword search using inverted index
-- Optimized TF-IDF ranking
-- Pre-built index for fast lookup
+- Web crawling of quotes.toscrape.com with politeness delays
+- Inverted index building with word frequencies and positions
+- Exact word lookup in the index
+- Boolean AND search for multiple words
+- TF-IDF based ranking for search results
+- Command-line interface for building index and performing searches
 - Benchmarking framework for performance comparison
-- Clean modular design
 
 ---
 
@@ -18,13 +20,12 @@ This project implements an optimized search system with both a **basic inverted 
 
 ```mermaid
 flowchart LR
-    A[Raw Documents] --> B[Index Builder]
-    B --> C[Index.json]
-    C --> D[Query Processor]
-    D --> E[Basic Find]
-    D --> F[TF-IDF Find]
-    E --> G[Results]
-    F --> G
+    A[quotes.toscrape.com] --> B[Crawler]
+    B --> C[Raw Data]
+    C --> D[Indexer]
+    D --> E[index.json]
+    E --> F[Search Engine]
+    F --> G[Query Results]
 ```
 
 ---
@@ -34,18 +35,25 @@ flowchart LR
 ```mermaid
 sequenceDiagram
     participant User
-    participant QueryProcessor
-    participant Index
-    participant Ranking
+    participant CLI
+    participant Crawler
+    participant Indexer
+    participant Search
 
-    User->>QueryProcessor: Input Query
-    QueryProcessor->>Index: Retrieve postings
-    Index-->>QueryProcessor: Matching docs
+    User->>CLI: build command
+    CLI->>Crawler: crawl()
+    Crawler-->>CLI: crawled data
+    CLI->>Indexer: build_index()
+    Indexer-->>CLI: inverted index
+    CLI->>Indexer: save_index()
 
-    QueryProcessor->>Ranking: Apply TF-IDF
-    Ranking-->>QueryProcessor: Ranked results
+    User->>CLI: load command
+    CLI->>CLI: load index.json
 
-    QueryProcessor-->>User: Output results
+    User->>CLI: find words
+    CLI->>Search: find_with_ranking()
+    Search-->>CLI: ranked results
+    CLI-->>User: display results
 ```
 
 ---
@@ -103,10 +111,11 @@ The trade-off between speed and relevance is justified:
 
 ## 🏗️ Design Decisions
 
-- Precomputed index to avoid runtime overhead
-- Separation of concerns (indexing vs querying)
-- Lightweight data structures for fast access
-- Benchmark-driven optimisation
+- Modular design with separate Crawler, Indexer, and Search classes
+- Inverted index stored in JSON for persistence
+- TF-IDF ranking for better search relevance
+- Command-line interface for easy interaction
+- Politeness delays in crawling to respect website policies
 
 ---
 
@@ -114,24 +123,77 @@ The trade-off between speed and relevance is justified:
 
 ```
 .
-├── index.json
-├── search.py
-├── benchmark.py
+├── pyproject.toml
+├── pytest.ini
+├── requirements.txt
 ├── README.md
+├── data/
+│   └── index.json
+├── src/
+│   ├── crawler.py
+│   ├── indexer.py
+│   ├── main.py
+│   └── search.py
+└── test/
+    ├── __init__.py
+    ├── test_crawler.py
+    ├── test_indexer.py
+    └── test_search.py
+    └── data/
+        ├── page1.html
+        └── page2.html
 ```
 
 ---
 
 ## 🧪 How to Run
 
+### Prerequisites
+- Python 3.12+
+- Virtual environment (recommended)
+
+### Installation
 ```bash
-python search.py
+# Create virtual environment
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
 ```
 
-Run benchmark:
-
+### Usage
 ```bash
-python benchmark.py
+# Run the CLI tool
+python src/main.py
+
+# Available commands:
+# build    - Crawl quotes.toscrape.com and build index
+# load     - Load existing index from data/index.json
+# print <word>    - Show index entry for a word
+# find <word1> <word2> ...    - Search for words with TF-IDF ranking
+# exit     - Quit the application
+```
+
+### Example Session
+```
+> build
+[BUILD] Starting crawl and indexing...
+[BUILD] Completed successfully.
+
+> load
+[LOAD] Index loaded successfully.
+
+> find life love
+[FIND] Pages containing ['life', 'love'] (ranked):
+- https://quotes.toscrape.com/page/1/ (score=0.85)
+- https://quotes.toscrape.com/page/2/ (score=0.72)
+
+> print happiness
+[PRINT] Results for 'happiness':
+- https://quotes.toscrape.com/page/1/
+  frequency: 2
+  positions: [15, 42]
 ```
 
 ---
@@ -139,11 +201,13 @@ python benchmark.py
 ## 🏁 Conclusion
 
 This project demonstrates:
-- Efficient search system design
-- Practical use of TF-IDF
-- Real-world benchmarking and performance trade-offs
+- Web scraping with politeness
+- Inverted index construction for efficient search
+- TF-IDF ranking for relevant results
+- Modular software design
+- Real-world benchmarking and performance analysis
 
-The system achieves **high performance with meaningful ranking**, making it suitable for scalable search applications.
+The system provides a complete pipeline from data collection to search, making it suitable for small-scale search applications.
 
 ---
 
