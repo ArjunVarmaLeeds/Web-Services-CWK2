@@ -1,3 +1,4 @@
+![CI](https://github.com/ArjunVarmaLeeds/Web-Services-CWK2/actions/workflows/ci.yml/badge.svg)
 # Web Services Coursework 2
 
 ## 🚀 Overview
