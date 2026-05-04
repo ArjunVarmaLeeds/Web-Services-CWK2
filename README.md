@@ -1,347 +1,151 @@
-![CI](https://github.com/ArjunVarmaLeeds/Web-Services-CWK2/actions/workflows/ci.yml/badge.svg)
-# 🚀 **Search Engine Tool (COMP3011 Coursework 2)**
+# Web Services Coursework 2
 
-## 📌 Overview
-
-This project implements a **mini search engine pipeline** over the website:
-👉 [https://quotes.toscrape.com/](https://quotes.toscrape.com/)
-
-It demonstrates core information retrieval concepts including:
-
-* Web crawling
-* Inverted indexing
-* Query processing
-* Relevance ranking (TF-IDF)
-
-The system crawls web pages, extracts textual data (quotes), builds an efficient **inverted index**, and supports fast keyword-based search via a command-line interface.
+## 🚀 Overview
+This project implements an optimized search system with both a **basic inverted index lookup** and an enhanced **TF-IDF ranking mechanism**. The system is designed with performance and scalability in mind, supported by benchmarking and algorithmic analysis.
 
 ---
 
-## 🧠 Key Features
-
-* 🔍 **Inverted Index** with frequency and positional data
-* ⚡ **Efficient Lookup** using hash-based structures (Python dictionaries)
-* 🔎 **Multi-word AND Queries**
-* 📊 **TF-IDF Ranking** for improved search relevance
-* 🧹 **Regex-based Tokenization** (handles punctuation correctly)
-* 🧪 **Comprehensive Test Suite** with mocking and real HTML parsing
-* 💾 Persistent storage using JSON
+## 🧠 Features
+- Basic keyword search using inverted index
+- Optimized TF-IDF ranking
+- Pre-built index for fast lookup
+- Benchmarking framework for performance comparison
+- Clean modular design
 
 ---
 
-## 🏗️ Architecture Overview
+## ⚙️ System Architecture
 
-The system follows a **modular pipeline design**:
-
-```text
-           +-------------+
-           |  Crawler    |
-           +-------------+
-                  |
-                  v
-           +-------------+
-           |  Indexer    |
-           +-------------+
-                  |
-                  v
-           +-------------+
-           |   Search    |
-           +-------------+
-                  |
-                  v
-           +-------------+
-           |     CLI     |
-           +-------------+
+```mermaid
+flowchart LR
+    A[Raw Documents] --> B[Index Builder]
+    B --> C[Index.json]
+    C --> D[Query Processor]
+    D --> E[Basic Find]
+    D --> F[TF-IDF Find]
+    E --> G[Results]
+    F --> G
 ```
 
-### Components
+---
 
-#### 1. Crawler (`crawler.py`)
+## 🔍 Search Pipeline
 
-* Traverses all pages using pagination
-* Extracts quotes and authors
-* Implements politeness delay between requests
-* Handles network errors gracefully
+```mermaid
+sequenceDiagram
+    participant User
+    participant QueryProcessor
+    participant Index
+    participant Ranking
 
-#### 2. Indexer (`indexer.py`)
+    User->>QueryProcessor: Input Query
+    QueryProcessor->>Index: Retrieve postings
+    Index-->>QueryProcessor: Matching docs
 
-* Builds an **inverted index**:
+    QueryProcessor->>Ranking: Apply TF-IDF
+    Ranking-->>QueryProcessor: Ranked results
 
-  ```
-  word → {document → {frequency, positions}}
-  ```
-* Uses regex tokenization for normalization
-* Stores positional data for extensibility (e.g., phrase search)
-
-#### 3. Search (`search.py`)
-
-* Supports:
-
-  * Word lookup (`print`)
-  * Multi-word AND queries (`find`)
-* Implements **TF-IDF ranking**:
-
-  * Rewards rare, informative terms
-  * Improves relevance over simple frequency scoring
-
-#### 4. CLI Interface (`main.py`)
-
-* Provides user interaction
-* Implements required commands:
-
-  * `build`, `load`, `print`, `find`
+    QueryProcessor-->>User: Output results
+```
 
 ---
 
-## ⚙️ Installation & Setup
+## 📊 Benchmarking
 
-### 1. Clone Repository
+### Methodology
+- Benchmarked using the same dataset (`index.json`)
+- Compared:
+  - Basic inverted index lookup
+  - TF-IDF ranking algorithm
+- Measured execution time using high-resolution timers
+
+---
+
+### Results
+
+| Query | Basic Find (s) | TF-IDF Find (s) |
+|------|---------------|----------------|
+| ['life'] | 0.000052 | 0.000096 |
+| ['good', 'friends'] | 0.000006 | 0.000086 |
+| ['life', 'love', 'truth'] | 0.000005 | 0.000086 |
+| ['if', 'you', 'understand'] | 0.000004 | 0.000085 |
+
+---
+
+## 📈 Analysis
+
+- **Basic Find** is significantly faster due to direct index lookup (O(1) per term).
+- **TF-IDF Find** introduces additional computation:
+  - Term frequency calculation
+  - Inverse document frequency weighting
+  - Sorting of results
+
+This results in slightly higher latency (~10–20x slower), but still within microsecond range.
+
+### Key Insight
+The trade-off between speed and relevance is justified:
+- Basic Find → fast but less meaningful ranking
+- TF-IDF → slightly slower but far more accurate results
+
+---
+
+## ⚡ Complexity Analysis
+
+### Basic Find
+- Time Complexity: **O(k)**  
+  (k = number of query terms)
+
+### TF-IDF Find
+- Time Complexity: **O(n log n)**  
+  (n = number of matching documents, due to sorting)
+
+---
+
+## 🏗️ Design Decisions
+
+- Precomputed index to avoid runtime overhead
+- Separation of concerns (indexing vs querying)
+- Lightweight data structures for fast access
+- Benchmark-driven optimisation
+
+---
+
+## 📂 Project Structure
+
+```
+.
+├── index.json
+├── search.py
+├── benchmark.py
+├── README.md
+```
+
+---
+
+## 🧪 How to Run
 
 ```bash
-git clone https://github.com/ArjunVarmaLeeds/Web-Services-CWK2.git
-cd Web-Services-CWK2
+python search.py
 ```
 
-### 2. Install Dependencies
+Run benchmark:
 
 ```bash
-pip install -r requirements.txt
-```
-
-Or manually:
-
-```bash
-pip install requests beautifulsoup4 pytest
+python benchmark.py
 ```
 
 ---
 
-## 🚀 Usage
+## 🏁 Conclusion
 
-Run the application:
+This project demonstrates:
+- Efficient search system design
+- Practical use of TF-IDF
+- Real-world benchmarking and performance trade-offs
 
-```bash
-python src/main.py
-```
-
----
-
-## 💻 Command Examples
-
-### 🔨 Build Index
-
-```bash
-> build
-```
-
-Crawls all pages and builds the inverted index.
+The system achieves **high performance with meaningful ranking**, making it suitable for scalable search applications.
 
 ---
 
-### 📂 Load Index
-
-```bash
-> load
-```
-
-Loads previously saved index from `data/index.json`.
-
----
-
-### 🔍 Print Word
-
-```bash
-> print life
-```
-
-**Example Output:**
-
-```
-[PRINT] Results for 'life':
-- https://quotes.toscrape.com/page/1/
-  frequency: 2
-  positions: [3, 10]
-```
-
----
-
-### 🔎 Find (Ranked Search)
-
-```bash
-> find good friends
-```
-
-**Example Output:**
-
-```
-[FIND] Pages containing ['good', 'friends']:
-- https://quotes.toscrape.com/page/1/ (score=3.42)
-- https://quotes.toscrape.com/page/2/ (score=1.87)
-```
-
----
-
-## 🧪 Testing
-
-Run all tests:
-
-```bash
-pytest
-```
-
-### Test Coverage Includes:
-
-* Crawler:
-
-  * HTML parsing
-  * Pagination handling
-  * Error handling (mocked requests)
-
-* Indexer:
-
-  * Tokenization
-  * Index structure correctness
-  * Frequency and positional tracking
-
-* Search:
-
-  * Query processing
-  * Multi-word intersection logic
-  * TF-IDF ranking
-
-
-### Testing Strategy
-
-* ✅ Unit tests for each module
-* ✅ Mocking external dependencies (network calls)
-* ✅ Real HTML files for realistic parsing
-* ✅ Edge case handling
-
----
-
-## 📦 Dependencies
-
-| Library          | Purpose           |
-| ---------------- | ----------------- |
-| `requests`       | HTTP requests     |
-| `beautifulsoup4` | HTML parsing      |
-| `pytest`         | Testing framework |
-| `re` (built-in)  | Tokenization      |
-
----
-
-## 🧠 Design Rationale
-
-### Why Inverted Index?
-
-* Enables **O(1) average lookup** per word
-* Avoids scanning documents at query time
-* Scales efficiently for large datasets
-
----
-
-### Why TF-IDF Ranking?
-
-* Simple frequency-based ranking treats all words equally
-* TF-IDF improves relevance by:
-
-  * Boosting rare terms (high IDF)
-  * Penalising common terms
-
-This aligns with real-world search engine behaviour.
-
----
-
-### Why Regex Tokenization?
-
-* Handles punctuation consistently
-* Ensures:
-
-  ```
-  "life." == "life"
-  ```
-* Prevents mismatches between indexing and querying
-
----
-
-### Why Modular Design?
-
-* Separation of concerns:
-
-  * Crawling
-  * Indexing
-  * Searching
-* Improves:
-
-  * Maintainability
-  * Testability
-  * Extensibility
-
----
-
-## 📈 Complexity Overview
-
-| Operation          | Complexity     |
-| ------------------ | -------------- |
-| Crawling           | O(n) pages     |
-| Indexing           | O(total words) |
-| Search (AND query) | O(k × d)       |
-| Ranking (TF-IDF)   | O(results)     |
-
-Where:
-
-* `k` = number of query terms
-* `d` = documents per term
-
----
-
-## 📌 Limitations & Future Work
-
-* No phrase search (can be added using positions)
-* No stemming or lemmatization
-* Ranking can be improved using:
-
-  * TF-IDF normalization
-  * cosine similarity
-
----
-
-### Relation to Modern Search Systems
-
-This system reflects the core architecture of modern search engines such as Google and Elasticsearch, which use inverted indices for efficient retrieval and ranking algorithms (e.g., TF-IDF, BM25) for relevance.
-
-While modern systems operate at distributed scale and incorporate additional signals such as link analysis (PageRank) and semantic embeddings, this project focuses on the foundational retrieval pipeline used in all search engines.
-
----
-
-### Design Trade-offs
-
-A simple dictionary-based inverted index was chosen for efficiency and simplicity. While this provides fast lookup, it does not scale to distributed systems or large datasets, where more advanced storage solutions (e.g., inverted files on disk or distributed indices) would be required.
-
----
-
-## 🎯 Summary
-
-This project implements a **complete search engine pipeline**:
-
-> Crawling → Indexing → Retrieval → Ranking
-
-It demonstrates key principles used in real-world systems such as:
-
-* inverted indexing
-* query processing
-* relevance ranking
-
----
-
-## 👤 Author
-
-Arjun Varma
-University of Leeds – Computer Science
-
----
-
-### References
-- Manning, C. D., Raghavan, P., & Schütze, H. (2008). *Introduction to Information Retrieval*
-
----
+## 📅 Generated
+2026-05-04
