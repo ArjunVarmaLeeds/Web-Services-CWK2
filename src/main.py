@@ -202,7 +202,7 @@ def main() -> None:
                 continue
 
             words = command.split()[1:]
-            find_words(search, words)
+            find_ranked(search, words)
 
         elif command == "exit":
             print("Exiting...")
