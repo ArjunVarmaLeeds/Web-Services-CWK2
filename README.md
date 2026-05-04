@@ -126,6 +126,7 @@ The trade-off between speed and relevance is justified:
 ├── pyproject.toml
 ├── pytest.ini
 ├── requirements.txt
+├── benchmark.py
 ├── README.md
 ├── data/
 │   └── index.json
